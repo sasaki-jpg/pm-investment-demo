@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PM投資分析システム - 画面イメージ</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --surface2: #f0f2f5;
+  --surface3: #e8eaef;
+  --border: #dde0e7;
+  --text: #1a1f2e;
+  --text2: #5a6275;
+  --text3: #8c95a8;
+  --accent: #2563eb;
+  --accent2: #1d4ed8;
+  --green: #16a34a;
+  --green-bg: #f0fdf4;
+  --yellow: #ca8a04;
+  --yellow-bg: #fefce8;
+  --red: #dc2626;
+  --red-bg: #fef2f2;
+  --orange: #ea580c;
+  --blue-bg: #eff4ff;
+  --radius: 8px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 6px rgba(0,0,0,.06);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Noto Sans JP',sans-serif; background:var(--bg); color:var(--text); font-size:13px; line-height:1.6; }
+.app { display:flex; height:100vh; overflow:hidden; }
+
+/* Sidebar */
+.sidebar { width:220px; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; flex-shrink:0; box-shadow:1px 0 4px rgba(0,0,0,.04); }
+.sidebar-logo { padding:20px 18px; border-bottom:1px solid var(--border); }
+.sidebar-logo h1 { font-size:15px; font-weight:700; letter-spacing:-.3px; }
+.sidebar-logo h1 span { color:var(--accent); }
+.sidebar-logo p { font-size:10px; color:var(--text3); margin-top:2px; letter-spacing:.5px; text-transform:uppercase; }
+.nav-section { padding:12px 10px 4px; }
+.nav-section-title { font-size:9px; text-transform:uppercase; letter-spacing:1.2px; color:var(--text3); padding:0 8px; margin-bottom:4px; font-weight:600; }
+.nav-item { display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:var(--radius-sm); cursor:pointer; transition:all .15s; font-size:12.5px; color:var(--text2); margin-bottom:1px; }
+.nav-item:hover { background:var(--surface2); color:var(--text); }
+.nav-item.active { background:var(--accent); color:#fff; }
+.nav-item .icon { width:18px; text-align:center; font-size:14px; flex-shrink:0; }
+.nav-badge { margin-left:auto; background:var(--accent); color:#fff; font-size:9px; padding:1px 6px; border-radius:8px; font-weight:600; }
+.sidebar-footer { margin-top:auto; padding:14px; border-top:1px solid var(--border); }
+.user-info { display:flex; align-items:center; gap:8px; }
+.user-avatar { width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,var(--accent),#6366f1); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#fff; }
+.user-name { font-size:11px; font-weight:500; }
+.user-role { font-size:10px; color:var(--text3); }
+
+/* Main */
+.main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+.topbar { padding:12px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:16px; background:var(--surface); box-shadow:0 1px 3px rgba(0,0,0,.04); }
+.topbar-title { font-size:15px; font-weight:600; }
+.topbar-tabs { display:flex; gap:2px; margin-left:20px; background:var(--surface2); border-radius:var(--radius-sm); padding:2px; }
+.topbar-tab { padding:5px 14px; border-radius:4px; font-size:11px; cursor:pointer; color:var(--text2); transition:all .15s; font-weight:500; }
+.topbar-tab:hover { color:var(--text); }
+.topbar-tab.active { background:var(--accent); color:#fff; }
+.topbar-right { margin-left:auto; display:flex; align-items:center; gap:10px; }
+.topbar-btn { padding:6px 14px; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--surface); color:var(--text2); font-size:11px; cursor:pointer; transition:all .15s; font-family:inherit; }
+.topbar-btn:hover { border-color:var(--accent); color:var(--accent); }
+.topbar-btn.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+.topbar-btn.primary:hover { background:var(--accent2); }
+
+/* Content */
+.content { flex:1; overflow-y:auto; padding:20px 24px; }
+.content::-webkit-scrollbar { width:6px; }
+.content::-webkit-scrollbar-track { background:transparent; }
+.content::-webkit-scrollbar-thumb { background:var(--surface3); border-radius:3px; }
+
+/* Screen tabs */
+.screen-selector { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:20px; }
+.screen-btn { padding:8px 16px; border-radius:var(--radius); border:1px solid var(--border); background:var(--surface); color:var(--text2); font-size:11.5px; cursor:pointer; transition:all .2s; font-family:inherit; font-weight:500; }
+.screen-btn:hover { border-color:var(--accent); color:var(--text); }
+.screen-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
+
+/* Screens */
+.screen { display:none; animation:fadeIn .3s ease; }
+.screen.active { display:block; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+/* Cards */
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:14px; box-shadow:var(--shadow); }
+.card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.card-title { font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px; }
+.card-title .dot { width:7px; height:7px; border-radius:50%; background:var(--accent); }
+.card-subtitle { font-size:10px; color:var(--text3); }
+
+/* Grid */
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+.grid-4 { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:14px; }
+
+/* Form fields */
+.field { margin-bottom:10px; }
+.field-label { font-size:10px; color:var(--text3); margin-bottom:3px; font-weight:500; text-transform:uppercase; letter-spacing:.5px; }
+.field-input { width:100%; padding:7px 10px; background:#ffffff; border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--text); font-size:12px; font-family:inherit; outline:none; transition:border-color .15s; }
+.field-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(37,99,235,.08); }
+.field-input.mono { font-family:'JetBrains Mono',monospace; }
+.field-unit { font-size:10px; color:var(--text3); margin-top:2px; }
+select.field-input { cursor:pointer; }
+
+/* KPI cards */
+.kpi { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px; text-align:center; }
+.kpi-label { font-size:10px; color:var(--text3); margin-bottom:4px; text-transform:uppercase; letter-spacing:.5px; font-weight:500; }
+.kpi-value { font-size:22px; font-weight:700; font-family:'JetBrains Mono',monospace; }
+.kpi-sub { font-size:10px; color:var(--text3); margin-top:2px; }
+.kpi.good .kpi-value { color:var(--green); }
+.kpi.warn .kpi-value { color:var(--yellow); }
+.kpi.bad .kpi-value { color:var(--red); }
+
+/* Judgment badges */
+.badge { display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:12px; font-size:10px; font-weight:600; }
+.badge.smile { background:var(--green-bg); color:var(--green); border:1px solid #bbf7d0; }
+.badge.normal { background:var(--yellow-bg); color:var(--yellow); border:1px solid #fef08a; }
+.badge.cry { background:var(--red-bg); color:var(--red); border:1px solid #fecaca; }
+.badge.a { background:var(--green-bg); color:var(--green); border:1px solid #bbf7d0; }
+.badge.b { background:var(--yellow-bg); color:var(--yellow); border:1px solid #fef08a; }
+.badge.c { background:var(--red-bg); color:var(--red); border:1px solid #fecaca; }
+
+/* Table */
+.data-table { width:100%; border-collapse:collapse; font-size:11.5px; }
+.data-table th { text-align:left; padding:8px 10px; background:var(--surface2); border-bottom:1px solid var(--border); font-weight:600; font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--text3); }
+.data-table td { padding:7px 10px; border-bottom:1px solid var(--border); }
+.data-table tr:hover td { background:var(--blue-bg); }
+.data-table .num { font-family:'JetBrains Mono',monospace; text-align:right; }
+
+/* Chart placeholder */
+.chart-area { height:200px; background:var(--surface2); border-radius:var(--radius-sm); display:flex; align-items:flex-end; padding:16px 12px 12px; gap:3px; position:relative; }
+.chart-bar { flex:1; border-radius:3px 3px 0 0; transition:height .5s ease; position:relative; min-width:0; }
+.chart-bar.income { background:linear-gradient(180deg,var(--accent),rgba(37,99,235,.3)); }
+.chart-bar.expense { background:linear-gradient(180deg,var(--red),rgba(220,38,38,.3)); }
+.chart-bar.cf { background:linear-gradient(180deg,var(--green),rgba(22,163,74,.3)); }
+.chart-label { position:absolute; bottom:-18px; left:50%; transform:translateX(-50%); font-size:8px; color:var(--text3); white-space:nowrap; }
+.chart-legend { display:flex; gap:14px; margin-top:8px; }
+.chart-legend-item { display:flex; align-items:center; gap:5px; font-size:10px; color:var(--text2); }
+.chart-legend-dot { width:8px; height:8px; border-radius:2px; }
+
+/* Proposal card */
+.proposal-card { background:var(--blue-bg); border-radius:var(--radius); padding:16px; border-left:3px solid var(--accent); }
+.proposal-card h4 { font-size:13px; font-weight:600; margin-bottom:6px; }
+.proposal-card p { font-size:11.5px; color:var(--text2); line-height:1.7; }
+
+/* Progress */
+.progress-bar { height:4px; background:var(--surface3); border-radius:2px; overflow:hidden; margin-top:6px; }
+.progress-fill { height:100%; border-radius:2px; transition:width .5s ease; }
+.progress-fill.green { background:var(--green); }
+.progress-fill.yellow { background:var(--yellow); }
+.progress-fill.red { background:var(--red); }
+
+/* Rent roll table */
+.rent-table { width:100%; border-collapse:collapse; font-size:11px; }
+.rent-table th { padding:6px 8px; background:var(--surface3); font-size:9px; text-transform:uppercase; letter-spacing:.5px; color:var(--text3); font-weight:600; text-align:center; border:1px solid var(--border); }
+.rent-table td { padding:5px 8px; border:1px solid var(--border); text-align:center; font-family:'JetBrains Mono',monospace; font-size:11px; }
+.rent-table tr:hover td { background:var(--blue-bg); }
+.rent-table .floor-header { background:var(--surface2); font-weight:600; text-align:left; font-family:'Noto Sans JP',sans-serif; }
+
+/* Cost item */
+.cost-item { display:flex; align-items:center; gap:10px; padding:6px 0; border-bottom:1px solid var(--border); }
+.cost-item:last-child { border-bottom:none; }
+.cost-item-name { flex:1; font-size:11.5px; }
+.cost-item-amount { font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:500; }
+.cost-item-cycle { font-size:10px; color:var(--text3); width:60px; text-align:right; }
+
+/* Comment bubble */
+.comment-box { background:var(--blue-bg); border-radius:var(--radius-sm); padding:10px 12px; margin-top:8px; font-size:11px; color:var(--text2); line-height:1.6; border-left:2px solid var(--accent); }
+
+/* Responsive */
+@media (max-width:900px) {
+  .sidebar { display:none; }
+  .grid-2,.grid-3,.grid-4 { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <h1><span>PM</span> Analytics</h1>
+      <p>Investment Consulting</p>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">メイン</div>
+      <div class="nav-item active"><span class="icon">📊</span>ダッシュボード</div>
+      <div class="nav-item"><span class="icon">🏢</span>物件一覧<span class="nav-badge">12</span></div>
+      <div class="nav-item"><span class="icon">＋</span>新規分析</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">分析</div>
+      <div class="nav-item"><span class="icon">📈</span>投資分析</div>
+      <div class="nav-item"><span class="icon">💰</span>CF分析</div>
+      <div class="nav-item"><span class="icon">🎯</span>総合評価</div>
+      <div class="nav-item"><span class="icon">📋</span>提案方向</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-title">設定</div>
+      <div class="nav-item"><span class="icon">⚙</span>判定マスタ</div>
+      <div class="nav-item"><span class="icon">🔧</span>修繕マスタ</div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">TY</div>
+        <div>
+          <div class="user-name">田中 裕太</div>
+          <div class="user-role">PMコンサルタント</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">RESAマンション</div>
+      <div class="topbar-tabs">
+        <div class="topbar-tab active" onclick="showPattern('current')">現状分析</div>
+        <div class="topbar-tab" onclick="showPattern('after')">パターンB</div>
+        <div class="topbar-tab" onclick="showPattern('new')">＋ 新規</div>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-btn">コピー</button>
+        <button class="topbar-btn">CSV出力</button>
+        <button class="topbar-btn primary">📄 診断票出力</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Screen selector -->
+      <div class="screen-selector">
+        <button class="screen-btn active" onclick="showScreen('input')">① 入力画面</button>
+        <button class="screen-btn" onclick="showScreen('analysis')">② 投資分析結果</button>
+        <button class="screen-btn" onclick="showScreen('cf')">③ CF分析（35年）</button>
+        <button class="screen-btn" onclick="showScreen('evaluation')">④ 総合評価・提案</button>
+        <button class="screen-btn" onclick="showScreen('rentroll')">⑤ レントロール</button>
+        <button class="screen-btn" onclick="showScreen('cost')">⑥ コスト管理</button>
+      </div>
+
+      <!-- ① 入力画面 -->
+      <div class="screen active" id="screen-input">
+        <div class="grid-2">
+          <div>
+            <div class="card">
+              <div class="card-header"><div class="card-title"><span class="dot"></span>物件情報</div></div>
+              <div class="grid-2">
+                <div class="field"><div class="field-label">物件名</div><input class="field-input" value="RESAマンション"></div>
+                <div class="field"><div class="field-label">所在地</div><input class="field-input" value="東京都大田区"></div>
+                <div class="field"><div class="field-label">最寄駅</div>
+                  <div style="display:flex;gap:6px"><input class="field-input" value="糀谷" style="flex:1"><input class="field-input mono" value="7" style="width:50px"><span class="field-unit" style="align-self:center">分</span></div>
+                </div>
+                <div class="field"><div class="field-label">構造</div>
+                  <select class="field-input"><option>木造</option><option>軽鉄</option><option>RC</option></select>
+                </div>
+                <div class="field"><div class="field-label">土地面積</div><input class="field-input mono" value="100.00"><div class="field-unit">㎡</div></div>
+                <div class="field"><div class="field-label">建物面積</div><input class="field-input mono" value="180.00"><div class="field-unit">㎡</div></div>
+                <div class="field"><div class="field-label">築年数</div><input class="field-input mono" value="0"><div class="field-unit">年</div></div>
+                <div class="field"><div class="field-label">階数 / 戸数</div>
+                  <div style="display:flex;gap:6px"><input class="field-input mono" value="3" style="width:50px"><span class="field-unit" style="align-self:center">階建</span><input class="field-input mono" value="9" style="width:50px"><span class="field-unit" style="align-self:center">戸</span></div>
+                </div>
+                <div class="field"><div class="field-label">現在の価格</div><input class="field-input mono" value="143,400,000"><div class="field-unit">円</div></div>
+                <div class="field"><div class="field-label">購入諸費用</div><input class="field-input mono" value="10,000,000"><div class="field-unit">円</div></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><div class="card-title"><span class="dot"></span>投資目的・方針</div></div>
+              <div class="field"><div class="field-label">投資目的</div><input class="field-input" value="老後の生活費（月額50万円）を不動産投資で確保したい"></div>
+              <div class="field"><div class="field-label">経営目標</div><input class="field-input" value="2040年まで黒字経営し、規模拡大を図る"></div>
+              <div class="field"><div class="field-label">オーナー特性</div>
+                <select class="field-input"><option>投資家</option><option>地主</option></select>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card">
+              <div class="card-header"><div class="card-title"><span class="dot"></span>ローン情報</div></div>
+              <div class="grid-2">
+                <div class="field"><div class="field-label">金融機関</div><input class="field-input" value="RESAM銀行"></div>
+                <div class="field"><div class="field-label">借入年月日</div><input class="field-input" value="2025-08-01" type="date"></div>
+                <div class="field"><div class="field-label">当初借入金額</div><input class="field-input mono" value="136,200,000"><div class="field-unit">円</div></div>
+                <div class="field"><div class="field-label">金利</div><input class="field-input mono" value="1.90"><div class="field-unit">%</div></div>
+                <div class="field"><div class="field-label">融資期間</div><input class="field-input mono" value="35"><div class="field-unit">年</div></div>
+                <div class="field"><div class="field-label">月額返済額（自動計算）</div><input class="field-input mono" value="444,222" disabled style="opacity:.7"><div class="field-unit">円/月</div></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><div class="card-title"><span class="dot"></span>運営費用（OPEX）<span class="card-subtitle">年額</span></div></div>
+              <div class="grid-2">
+                <div class="field"><div class="field-label">管理料</div>
+                  <div style="display:flex;gap:6px"><input class="field-input mono" value="449,559" style="flex:1"><input class="field-input mono" value="5.0" style="width:50px"><span class="field-unit" style="align-self:center">%</span></div>
+                </div>
+                <div class="field"><div class="field-label">清掃費用</div><input class="field-input mono" value="132,000"></div>
+                <div class="field"><div class="field-label">消防点検</div><input class="field-input mono" value="15,000"></div>
+                <div class="field"><div class="field-label">水光熱費</div><input class="field-input mono" value="20,000"></div>
+                <div class="field"><div class="field-label">固都税</div><input class="field-input mono" value="450,000"></div>
+                <div class="field"><div class="field-label">保険料</div><input class="field-input mono" value="50,000"></div>
+                <div class="field"><div class="field-label">町内会費</div><input class="field-input mono" value="15,000"></div>
+                <div class="field"><div class="field-label">インターネット</div><input class="field-input mono" value="0"></div>
+              </div>
+              <div style="border-top:1px solid var(--border);margin-top:10px;padding-top:8px;display:flex;justify-content:space-between;align-items:center">
+                <span class="field-label" style="margin:0">年間合計</span>
+                <span style="font-family:'JetBrains Mono';font-size:14px;font-weight:700;color:var(--accent)">¥1,131,559</span>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><div class="card-title"><span class="dot"></span>仮定条件</div></div>
+              <div class="grid-2">
+                <div class="field"><div class="field-label">平均入居期間</div><input class="field-input mono" value="3.0"><div class="field-unit">年</div></div>
+                <div class="field"><div class="field-label">平均空室率</div><input class="field-input mono" value="5.0"><div class="field-unit">%</div></div>
+                <div class="field"><div class="field-label">家賃下落率</div><input class="field-input mono" value="0.25"><div class="field-unit">%/年</div></div>
+                <div class="field"><div class="field-label">運営費増加率</div><input class="field-input mono" value="0.0"><div class="field-unit">%/年</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:center;margin:16px 0">
+          <button class="topbar-btn primary" style="padding:10px 40px;font-size:13px;font-weight:600" onclick="showScreen('analysis')">▶ 分析実行</button>
+        </div>
+      </div>
+
+      <!-- ② 投資分析結果 -->
+      <div class="screen" id="screen-analysis">
+        <div class="grid-4" style="margin-bottom:14px">
+          <div class="kpi good"><div class="kpi-label">FCR（実質利回り）</div><div class="kpi-value">4.65%</div><div class="kpi-sub">NOI ÷ 投資総額</div></div>
+          <div class="kpi good"><div class="kpi-label">K%（ローン定数）</div><div class="kpi-value">3.91%</div><div class="kpi-sub">ADS ÷ ローン残高</div></div>
+          <div class="kpi good"><div class="kpi-label">CCR（自己資金配当率）</div><div class="kpi-value">11.26%</div><div class="kpi-sub">BTCF ÷ 自己資金</div></div>
+          <div class="kpi warn"><div class="kpi-label">DCR（借入返済余裕率）</div><div class="kpi-value">1.32</div><div class="kpi-sub">NOI ÷ ADS</div></div>
+        </div>
+        <div class="grid-4" style="margin-bottom:16px">
+          <div class="kpi bad"><div class="kpi-label">LTV</div><div class="kpi-value">94.98%</div><div class="kpi-sub">借入÷不動産価値</div></div>
+          <div class="kpi warn"><div class="kpi-label">BER（損益分岐点）</div><div class="kpi-value">75.0%</div><div class="kpi-sub">(ADS+OPEX)÷GPI</div></div>
+          <div class="kpi warn"><div class="kpi-label">IRR</div><div class="kpi-value">2.64%</div><div class="kpi-sub">内部収益率</div></div>
+          <div class="kpi good"><div class="kpi-label">レバレッジ</div><div class="kpi-value">＋</div><div class="kpi-sub">FCR &gt; K% (Positive)</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title"><span class="dot"></span>指標別判定結果</div></div>
+          <table class="data-table">
+            <thead><tr><th>指標</th><th>計算値</th><th>判定</th><th>コメント</th></tr></thead>
+            <tbody>
+              <tr><td style="font-weight:600">FCR</td><td class="num">4.65%</td><td><span class="badge smile">😊 Good</span></td><td>類似物件の相場利回りと同等であり、適正な収益率が期待できます。</td></tr>
+              <tr><td style="font-weight:600">K%</td><td class="num">3.91%</td><td><span class="badge smile">😊 Good</span></td><td>非常に有利な資金調達ができています。</td></tr>
+              <tr><td style="font-weight:600">CCR</td><td class="num">11.26%</td><td><span class="badge smile">😊 Good</span></td><td>レバレッジを充分に活用できていて、自己資本の運用効率が極めて順調です。</td></tr>
+              <tr><td style="font-weight:600">DCR</td><td class="num">1.32</td><td><span class="badge smile">😊 Good</span></td><td>借入金返済に余裕があり、健全な収支状態です。</td></tr>
+              <tr><td style="font-weight:600">LTV</td><td class="num">94.98%</td><td><span class="badge cry">😢 Alert</span></td><td>物件価格に対し残債比率が高く危険な状態です。</td></tr>
+              <tr><td style="font-weight:600">BER</td><td class="num">75.0%</td><td><span class="badge cry">😢 Alert</span></td><td>損益分岐入居率に余裕がありません。</td></tr>
+              <tr><td style="font-weight:600">レバレッジ</td><td class="num">＋0.74%</td><td><span class="badge smile">😊 Good</span></td><td>レバレッジを活用できています。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ③ CF分析 -->
+      <div class="screen" id="screen-cf">
+        <div class="card">
+          <div class="card-header"><div class="card-title"><span class="dot"></span>キャッシュフロー推移（5年分抜粋 / 全35年）</div></div>
+          <div class="chart-area" style="height:180px;">
+            <div style="position:absolute;top:8px;left:12px;display:flex;gap:14px">
+              <span class="chart-legend-item"><span class="chart-legend-dot" style="background:var(--accent)"></span>NOI</span>
+              <span class="chart-legend-item"><span class="chart-legend-dot" style="background:var(--red)"></span>ADS</span>
+              <span class="chart-legend-item"><span class="chart-legend-dot" style="background:var(--green)"></span>BTCF</span>
+            </div>
+            <div class="chart-bar income" style="height:85%"><span class="chart-label">1年目</span></div>
+            <div class="chart-bar expense" style="height:64%"></div>
+            <div class="chart-bar cf" style="height:21%"></div>
+            <div style="width:8px"></div>
+            <div class="chart-bar income" style="height:83%"><span class="chart-label">2年目</span></div>
+            <div class="chart-bar expense" style="height:64%"></div>
+            <div class="chart-bar cf" style="height:20%"></div>
+            <div style="width:8px"></div>
+            <div class="chart-bar income" style="height:82%"><span class="chart-label">3年目</span></div>
+            <div class="chart-bar expense" style="height:64%"></div>
+            <div class="chart-bar cf" style="height:20%"></div>
+            <div style="width:8px"></div>
+            <div class="chart-bar income" style="height:81%"><span class="chart-label">4年目</span></div>
+            <div class="chart-bar expense" style="height:64%"></div>
+            <div class="chart-bar cf" style="height:19%"></div>
+            <div style="width:8px"></div>
+            <div class="chart-bar income" style="height:80%"><span class="chart-label">5年目</span></div>
+            <div class="chart-bar expense" style="height:64%"></div>
+            <div class="chart-bar cf" style="height:19%"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title"><span class="dot"></span>CF詳細テーブル</div><div class="card-subtitle">単位：万円</div></div>
+          <div style="overflow-x:auto">
+          <table class="data-table">
+            <thead><tr><th>項目</th><th class="num">1年目</th><th class="num">2年目</th><th class="num">3年目</th><th class="num">4年目</th><th class="num">5年目</th><th class="num">合計</th></tr></thead>
+            <tbody>
+              <tr><td>GPI（満室時家賃収入）</td><td class="num">860</td><td class="num">858</td><td class="num">856</td><td class="num">854</td><td class="num">852</td><td class="num">4,280</td></tr>
+              <tr><td>EGI（実効総収入）</td><td class="num">817</td><td class="num">815</td><td class="num">813</td><td class="num">811</td><td class="num">809</td><td class="num">4,066</td></tr>
+              <tr style="color:var(--red)"><td>OPEX（運営費）</td><td class="num">-113</td><td class="num">-113</td><td class="num">-113</td><td class="num">-112</td><td class="num">-112</td><td class="num">-564</td></tr>
+              <tr style="font-weight:600"><td>NOI（純営業収益）</td><td class="num">704</td><td class="num">702</td><td class="num">700</td><td class="num">699</td><td class="num">697</td><td class="num">3,502</td></tr>
+              <tr style="color:var(--red)"><td>ADS（ローン返済）</td><td class="num">-533</td><td class="num">-533</td><td class="num">-533</td><td class="num">-533</td><td class="num">-533</td><td class="num">-2,665</td></tr>
+              <tr style="font-weight:600;color:var(--green)"><td>BTCF（税引前CF）</td><td class="num">171</td><td class="num">169</td><td class="num">167</td><td class="num">166</td><td class="num">164</td><td class="num">837</td></tr>
+              <tr style="color:var(--text3)"><td>原状回復+リーシング</td><td class="num">-99</td><td class="num">-99</td><td class="num">-99</td><td class="num">-99</td><td class="num">-99</td><td class="num">-495</td></tr>
+              <tr style="font-weight:600;color:var(--accent)"><td>可処分BTCF</td><td class="num">72</td><td class="num">70</td><td class="num">69</td><td class="num">67</td><td class="num">65</td><td class="num">343</td></tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title"><span class="dot"></span>売却時分析</div></div>
+            <div class="grid-2">
+              <div class="field"><div class="field-label">想定キャップレート</div><div style="font-family:'JetBrains Mono';font-size:14px;font-weight:600">4.96%</div></div>
+              <div class="field"><div class="field-label">想定市場価格</div><div style="font-family:'JetBrains Mono';font-size:14px;font-weight:600">¥140,269,767</div></div>
+              <div class="field"><div class="field-label">ローン残高</div><div style="font-family:'JetBrains Mono';font-size:14px;color:var(--red)">-¥121,825,075</div></div>
+              <div class="field"><div class="field-label">正味売却収益</div><div style="font-family:'JetBrains Mono';font-size:14px;font-weight:700;color:var(--green)">¥12,833,901</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title"><span class="dot"></span>累計収益</div></div>
+            <div class="field"><div class="field-label">インカムゲイン（5年累計BTCF）</div><div style="font-family:'JetBrains Mono';font-size:14px;font-weight:600;color:var(--green)">¥8,376,512</div></div>
+            <div class="field"><div class="field-label">キャピタルゲイン</div><div style="font-family:'JetBrains Mono';font-size:14px;font-weight:600;color:var(--green)">¥12,833,901</div></div>
+            <div style="border-top:1px solid var(--border);margin-top:8px;padding-top:8px;display:flex;justify-content:space-between">
+              <span style="font-weight:600">PM考慮後 総収益額</span>
+              <span style="font-family:'JetBrains Mono';font-size:16px;font-weight:700;color:var(--accent)">¥15,276,563</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ④ 総合評価・提案 -->
+      <div class="screen" id="screen-evaluation">
+        <div class="card">
+          <div class="card-header"><div class="card-title"><span class="dot"></span>目的別 総合評価</div><div class="card-subtitle">4大指標（FCR/K%/CCR/DCR）の組み合わせ判定</div></div>
+          <table class="data-table">
+            <thead><tr><th>投資目的</th><th style="text-align:center">FCR</th><th style="text-align:center">K%</th><th style="text-align:center">CCR</th><th style="text-align:center">DCR</th><th style="text-align:center">総合判定</th></tr></thead>
+            <tbody>
+              <tr><td style="font-weight:600">資産拡大</td><td style="text-align:center"><span class="badge smile">〇</span></td><td style="text-align:center"><span class="badge smile">〇</span></td><td style="text-align:center"><span class="badge smile">〇</span></td><td style="text-align:center"><span class="badge smile">〇</span></td><td style="text-align:center;font-size:18px;font-weight:700"><span class="badge a" style="font-size:16px;padding:4px 16px">A</span></td></tr>
+              <tr><td style="font-weight:600">相続対策</td><td style="text-align:center"><span class="badge smile">〇</span></td><td style="text-align:center"><span class="badge smile">〇</span></td><td style="text-align:center"><span class="badge smile">〇</span></td><td style="text-align:center"><span class="badge smile">〇</span></td><td style="text-align:center"><span class="badge a" style="font-size:16px;padding:4px 16px">A</span></td></tr>
+              <tr><td style="font-weight:600">長期安定収入</td><td style="text-align:center"><span class="badge smile">〇</span></td><td style="text-align:center"><span class="badge smile">〇</span></td><td style="text-align:center"><span class="badge smile">〇</span></td><td style="text-align:center"><span class="badge smile">〇</span></td><td style="text-align:center"><span class="badge a" style="font-size:16px;padding:4px 16px">A</span></td></tr>
+              <tr><td style="font-weight:600">資産維持</td><td style="text-align:center"><span class="badge smile">〇</span></td><td style="text-align:center"><span class="badge smile">〇</span></td><td style="text-align:center"><span class="badge smile">〇</span></td><td style="text-align:center"><span class="badge smile">〇</span></td><td style="text-align:center"><span class="badge a" style="font-size:16px;padding:4px 16px">A</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title"><span class="dot"></span>次回提案方向</div><div class="card-subtitle">A/A/A/A パターン → 全方位で良好</div></div>
+          <div class="grid-2">
+            <div class="proposal-card" style="border-left-color:var(--green)">
+              <h4>🏠 買いましょう（資産拡大）</h4>
+              <p>現在の投資効率が良好です。レバレッジが効いている状態のため、追加物件の取得による資産拡大を検討する好機です。</p>
+            </div>
+            <div class="proposal-card" style="border-left-color:var(--yellow)">
+              <h4>🔧 工事しましょう（資産維持）</h4>
+              <p>築0年のため現時点で大規模修繕の必要はありませんが、中長期修繕積立の計画策定を推奨します。</p>
+            </div>
+            <div class="proposal-card" style="border-left-color:var(--accent)">
+              <h4>📊 ヒアリングポイント</h4>
+              <p>「今後5年間で目標とする資産規模は？」「次の物件取得時の融資方針（フルローン/自己資金比率）は？」</p>
+            </div>
+            <div class="proposal-card" style="border-left-color:var(--text3)">
+              <h4>⚠️ 注意事項</h4>
+              <p>LTV 94.98%と高水準のため、金利上昇リスクへの備え（固定金利検討、繰上返済計画）を併せて提案してください。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ⑤ レントロール -->
+      <div class="screen" id="screen-rentroll">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="dot"></span>レントロール</div>
+            <div style="display:flex;gap:8px">
+              <span style="font-family:'JetBrains Mono';font-size:12px;color:var(--text2)">月額合計：</span>
+              <span style="font-family:'JetBrains Mono';font-size:14px;font-weight:700;color:var(--accent)">¥717,000</span>
+              <span style="font-family:'JetBrains Mono';font-size:12px;color:var(--text2);margin-left:12px">GPI：</span>
+              <span style="font-family:'JetBrains Mono';font-size:14px;font-weight:700;color:var(--accent)">¥8,604,000</span>
+            </div>
+          </div>
+          <table class="rent-table">
+            <thead><tr><th>階</th><th>号室</th><th>タイプ</th><th>面積(㎡)</th><th>賃料</th><th>共益費</th><th>月額計</th><th>1年目</th><th>2年目</th><th>3年目</th><th>5年目</th></tr></thead>
+            <tbody>
+              <tr class="floor-header"><td colspan="11">1階</td></tr>
+              <tr><td></td><td>101</td><td>1K</td><td>20</td><td>75,000</td><td>3,000</td><td style="font-weight:600">78,000</td><td>78,000</td><td>77,805</td><td>77,611</td><td>77,224</td></tr>
+              <tr><td></td><td>102</td><td>1K</td><td>20</td><td>75,000</td><td>3,000</td><td style="font-weight:600">78,000</td><td>78,000</td><td>77,805</td><td>77,611</td><td>77,224</td></tr>
+              <tr><td></td><td>103</td><td>1K</td><td>20</td><td>75,000</td><td>3,000</td><td style="font-weight:600">78,000</td><td>78,000</td><td>77,805</td><td>77,611</td><td>77,224</td></tr>
+              <tr class="floor-header"><td colspan="11">2階</td></tr>
+              <tr><td></td><td>201</td><td>1K</td><td>20</td><td>77,000</td><td>3,000</td><td style="font-weight:600">80,000</td><td>80,000</td><td>79,800</td><td>79,601</td><td>79,204</td></tr>
+              <tr><td></td><td>202</td><td>1K</td><td>20</td><td>77,000</td><td>3,000</td><td style="font-weight:600">80,000</td><td>80,000</td><td>79,800</td><td>79,601</td><td>79,204</td></tr>
+              <tr><td></td><td>203</td><td>1K</td><td>20</td><td>77,000</td><td>3,000</td><td style="font-weight:600">80,000</td><td>80,000</td><td>79,800</td><td>79,601</td><td>79,204</td></tr>
+              <tr class="floor-header"><td colspan="11">3階</td></tr>
+              <tr><td></td><td>301</td><td>1K</td><td>20</td><td>78,000</td><td>3,000</td><td style="font-weight:600">81,000</td><td>81,000</td><td>80,798</td><td>80,596</td><td>80,194</td></tr>
+              <tr><td></td><td>302</td><td>1K</td><td>20</td><td>78,000</td><td>3,000</td><td style="font-weight:600">81,000</td><td>81,000</td><td>80,798</td><td>80,596</td><td>80,194</td></tr>
+              <tr><td></td><td>303</td><td>1K</td><td>20</td><td>78,000</td><td>3,000</td><td style="font-weight:600">81,000</td><td>81,000</td><td>80,798</td><td>80,596</td><td>80,194</td></tr>
+              <tr style="font-weight:700;background:var(--surface2)"><td colspan="3">合計</td><td>180</td><td>690,000</td><td>27,000</td><td>717,000</td><td>717,000</td><td>715,208</td><td>713,420</td><td>709,862</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ⑥ コスト管理 -->
+      <div class="screen" id="screen-cost">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><div class="card-title"><span class="dot"></span>原状回復コスト（1室あたり）</div><div class="card-subtitle">年間予算 ¥75,700 × 9戸 = ¥681,300</div></div>
+            <div class="cost-item"><span class="cost-item-name">ACクリーニング</span><span class="cost-item-amount">¥10,000</span><span class="cost-item-cycle">3年毎</span></div>
+            <div class="cost-item"><span class="cost-item-name">クロス張替</span><span class="cost-item-amount">¥75,000</span><span class="cost-item-cycle">5年毎</span></div>
+            <div class="cost-item"><span class="cost-item-name">フロアタイル</span><span class="cost-item-amount">¥125,000</span><span class="cost-item-cycle">10年毎</span></div>
+            <div class="cost-item"><span class="cost-item-name">エアコン交換</span><span class="cost-item-amount">¥88,000</span><span class="cost-item-cycle">12年毎</span></div>
+            <div class="cost-item"><span class="cost-item-name">給湯器交換</span><span class="cost-item-amount">¥120,000</span><span class="cost-item-cycle">15年毎</span></div>
+            <div class="cost-item"><span class="cost-item-name">浴室乾燥機交換</span><span class="cost-item-amount">¥120,000</span><span class="cost-item-cycle">15年毎</span></div>
+            <div class="cost-item"><span class="cost-item-name">その他（照明・換気扇等）</span><span class="cost-item-amount">¥97,000</span><span class="cost-item-cycle">各周期</span></div>
+            <div style="margin-top:6px;font-size:10px;color:var(--text3)">借主負担割合：25%　→　年間推定予算：¥510,975</div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title"><span class="dot"></span>中長期修繕積立</div><div class="card-subtitle">年間積立予算 ¥401,429</div></div>
+            <div class="cost-item"><span class="cost-item-name">外壁塗装</span><span class="cost-item-amount">¥2,000,000</span><span class="cost-item-cycle">15年毎</span></div>
+            <div class="cost-item"><span class="cost-item-name">屋根防水工事</span><span class="cost-item-amount">¥1,000,000</span><span class="cost-item-cycle">15年毎</span></div>
+            <div class="cost-item"><span class="cost-item-name">オートロック交換</span><span class="cost-item-amount">¥1,500,000</span><span class="cost-item-cycle">20年毎</span></div>
+            <div class="cost-item"><span class="cost-item-name">宅配ボックス交換</span><span class="cost-item-amount">¥300,000</span><span class="cost-item-cycle">10年毎</span></div>
+            <div class="cost-item"><span class="cost-item-name">鉄部塗装</span><span class="cost-item-amount">¥150,000</span><span class="cost-item-cycle">7年毎</span></div>
+            <div class="cost-item"><span class="cost-item-name">植栽・造園</span><span class="cost-item-amount">¥150,000</span><span class="cost-item-cycle">2年毎</span></div>
+
+            <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+              <div class="field-label">費用評価（耐用年数チェック）</div>
+              <div style="margin-top:6px">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                  <span style="font-size:11px">外壁塗装</span><span class="badge smile">問題なし（残15年）</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill green" style="width:100%"></div></div>
+              </div>
+              <div style="margin-top:8px">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                  <span style="font-size:11px">鉄部塗装</span><span class="badge smile">問題なし（残7年）</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill green" style="width:100%"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title"><span class="dot"></span>リーシングコスト（1室あたり）</div></div>
+          <div class="grid-3">
+            <div class="cost-item" style="border:none"><span class="cost-item-name">客付手数料</span><span class="cost-item-amount">¥79,667</span><span class="cost-item-cycle">3年毎</span></div>
+            <div class="cost-item" style="border:none"><span class="cost-item-name">広告料</span><span class="cost-item-amount">¥79,667</span><span class="cost-item-cycle">3年毎</span></div>
+            <div class="cost-item" style="border:none"><span class="cost-item-name">年間推定予算</span><span class="cost-item-amount" style="color:var(--accent);font-weight:700">¥478,000</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.screen-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+function showPattern(id) {
+  document.querySelectorAll('.topbar-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
